@@ -1,3 +1,5 @@
+import { request } from 'https'
+
 export type Method =
   | `get`
   | 'GET'
@@ -21,6 +23,7 @@ export interface RequestConfig {
   data?: any
   headers?: any
   responseType?: XMLHttpRequestResponseType
+  timeout?: number
 }
 
 export interface RhineResponse {
@@ -33,3 +36,10 @@ export interface RhineResponse {
 }
 
 export interface RhinePromise extends Promise<RhineResponse> {}
+
+export interface RhineError extends Error {
+  config?: RequestConfig
+  code: string | null
+  request?: any
+  response?: RhineResponse
+}
