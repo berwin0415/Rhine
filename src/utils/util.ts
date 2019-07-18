@@ -16,3 +16,12 @@ export const encode = (values: string): string =>
 
 export const isPlainObject = (value: any): value is Object =>
   toString.call(value) === '[object Object]'
+
+export const isString = (value: any): Boolean => typeof value === 'string'
+
+export function extend<T, U>(to: T, from: U): T & U {
+  for (const key in from) {
+    ;(to as T & U)[key] = from[key] as any
+  }
+  return to as T & U
+}

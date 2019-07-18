@@ -1,5 +1,3 @@
-import { request } from 'https'
-
 export type Method =
   | `get`
   | 'GET'
@@ -17,7 +15,7 @@ export type Method =
   | 'HEAD'
 
 export interface RequestConfig {
-  url: string
+  url?: string
   method?: Method
   params?: any
   data?: any
@@ -26,8 +24,8 @@ export interface RequestConfig {
   timeout?: number
 }
 
-export interface RhineResponse {
-  data: any
+export interface RhineResponse<T = any> {
+  data: T
   status: number
   statusText: string
   headers: any
@@ -35,11 +33,35 @@ export interface RhineResponse {
   request: any
 }
 
-export interface RhinePromise extends Promise<RhineResponse> {}
+export interface RhinePromise<T = any> extends Promise<RhineResponse<T>> {}
 
 export interface RhineError extends Error {
   config?: RequestConfig
   code: string | null
   request?: any
   response?: RhineResponse
+}
+
+export interface Rhine {
+  request<T = any>(config: RequestConfig): RhinePromise<T>
+
+  get<T = any>(url: string, config?: RequestConfig): RhinePromise<T>
+
+  delete<T = any>(url: string, config?: RequestConfig): RhinePromise<T>
+
+  head<T = any>(url: string, config?: RequestConfig): RhinePromise<T>
+
+  options<T = any>(url: string, config?: RequestConfig): RhinePromise<T>
+
+  post<T = any>(url: string, data: any, config?: RequestConfig): RhinePromise<T>
+
+  put<T = any>(url: string, data: any, config?: RequestConfig): RhinePromise<T>
+
+  patch<T = any>(url: string, data: any, config?: RequestConfig): RhinePromise<T>
+}
+
+export interface RhineInstance extends Rhine {
+  <T = any>(config: RequestConfig): RhinePromise<T>
+
+  <T = any>(url: string, config?: RequestConfig): RhinePromise<T>
 }

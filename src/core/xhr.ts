@@ -1,8 +1,8 @@
-import { RequestConfig, RhinePromise, RhineResponse } from './types'
+import { RequestConfig, RhinePromise, RhineResponse } from '../types'
 
-import { parseHeaders } from './utils/headers'
+import { parseHeaders } from '../utils/headers'
 
-import { createError } from './utils/error'
+import { createError } from '../utils/error'
 
 export default function xhr(config: RequestConfig): RhinePromise {
   return new Promise((resole, reject) => {
@@ -19,7 +19,7 @@ export default function xhr(config: RequestConfig): RhinePromise {
         request.timeout = timeout
       }
 
-      request.open(method.toUpperCase(), url, true)
+      request.open(method.toUpperCase(), url!, true)
 
       request.onreadystatechange = () => {
         if (request.readyState === 4) {
