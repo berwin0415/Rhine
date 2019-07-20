@@ -33,7 +33,7 @@ export interface RhineResponse<T = any> {
   request: any
 }
 
-export interface RhinePromise<T = any> extends Promise<RhineResponse<T>> {}
+export interface RhinePromise<T = any> extends Promise<RhineResponse<T>> { }
 
 export interface RhineError extends Error {
   config?: RequestConfig
@@ -64,4 +64,20 @@ export interface RhineInstance extends Rhine {
   <T = any>(config: RequestConfig): RhinePromise<T>
 
   <T = any>(url: string, config?: RequestConfig): RhinePromise<T>
+}
+
+
+export interface RhineInterceptorManage<T> {
+  
+  use(resolved: ResolvedFn<T>, rejected: RejectedFn): number
+
+  eject(id: number): void
+}
+
+export interface ResolvedFn<T> {
+  (val: T): T | Promise<T>
+}
+
+export interface RejectedFn {
+  (error: any): any
 }
