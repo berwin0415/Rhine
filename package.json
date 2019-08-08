@@ -1,6 +1,6 @@
 {
   "name": "rhine",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "",
   "keywords": [],
   "main": "dist/rhine.umd.js",
@@ -11,8 +11,8 @@
   ],
   "author": "berwin <berwin0415@gmail.com>",
   "repository": {
-    "type": "git",
-    "url": ""
+    "type": "github",
+    "url": "https://github.com/berwin0415/Rhine"
   },
   "license": "MIT",
   "engines": {

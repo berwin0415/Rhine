@@ -22,6 +22,11 @@ export interface RequestConfig {
   headers?: any
   responseType?: XMLHttpRequestResponseType
   timeout?: number
+  transformRequest?: RhineTransformer | RhineTransformer[]
+  transformResponse?: RhineTransformer | RhineTransformer[]
+  cancelToken?: CancelToken
+
+  [propName: string]: any
 }
 
 export interface RhineResponse<T = any> {
@@ -33,7 +38,7 @@ export interface RhineResponse<T = any> {
   request: any
 }
 
-export interface RhinePromise<T = any> extends Promise<RhineResponse<T>> { }
+export interface RhinePromise<T = any> extends Promise<RhineResponse<T>> {}
 
 export interface RhineError extends Error {
   config?: RequestConfig
@@ -43,6 +48,11 @@ export interface RhineError extends Error {
 }
 
 export interface Rhine {
+  defaults: RequestConfig
+  interceprors: {
+    request: RhineInterceptorManager<RequestConfig>
+    response: RhineInterceptorManager<RhineResponse>
+  }
   request<T = any>(config: RequestConfig): RhinePromise<T>
 
   get<T = any>(url: string, config?: RequestConfig): RhinePromise<T>
@@ -66,10 +76,14 @@ export interface RhineInstance extends Rhine {
   <T = any>(url: string, config?: RequestConfig): RhinePromise<T>
 }
 
-
-export interface RhineInterceptorManage<T> {
-  
-  use(resolved: ResolvedFn<T>, rejected: RejectedFn): number
+export interface RhineStatic extends RhineInstance {
+  create(config?: RequestConfig): RhineInstance
+  CancelToken: CancelTokenStatic
+  Cancel: CancelStatic
+  isCancel: (value: any) => boolean
+}
+export interface RhineInterceptorManager<T> {
+  use(resolved: ResolvedFn<T>, rejected?: RejectedFn): number
 
   eject(id: number): void
 }
@@ -80,4 +94,41 @@ export interface ResolvedFn<T> {
 
 export interface RejectedFn {
   (error: any): any
+}
+
+export interface RhineTransformer {
+  (data: any, headers?: any): any
+}
+
+export interface CancelToken {
+  promise: Promise<Cancel>
+  reason?: Cancel
+
+  throwIfRequested(): void
+}
+
+export interface Canceler {
+  (message?: string): void
+}
+
+export interface CancelExecutor {
+  (cancel: Canceler): void
+}
+
+export interface CancelTonkenSource {
+  token: CancelToken
+  cancel: Canceler
+}
+
+export interface CancelTokenStatic {
+  new (executor: CancelExecutor): CancelToken
+  source(): CancelTonkenSource
+}
+
+export interface Cancel {
+  message?: string
+}
+
+export interface CancelStatic {
+  new (message?: string): Cancel
 }

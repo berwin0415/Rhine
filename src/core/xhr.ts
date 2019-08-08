@@ -7,7 +7,15 @@ import { createError } from '../utils/error'
 export default function xhr(config: RequestConfig): RhinePromise {
   return new Promise((resole, reject) => {
     try {
-      const { method = 'get', url, data = null, headers, responseType, timeout } = config
+      const {
+        method = 'get',
+        url,
+        data = null,
+        headers,
+        responseType,
+        timeout,
+        cancelToken
+      } = config
 
       let request = new XMLHttpRequest()
 
@@ -19,9 +27,18 @@ export default function xhr(config: RequestConfig): RhinePromise {
         request.timeout = timeout
       }
 
+      if (cancelToken) {
+        cancelToken.promise.then(reason => {
+          request.abort()
+          reject(reason)
+        })
+      }
       request.open(method.toUpperCase(), url!, true)
 
       request.onreadystatechange = () => {
+        if (request.status === 0) {
+          return
+        }
         if (request.readyState === 4) {
           const responseHearder = parseHeaders(request.getAllResponseHeaders())
           const responseData = responseType === 'text' ? request.responseText : request.response

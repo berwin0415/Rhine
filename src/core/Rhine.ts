@@ -1,8 +1,37 @@
 import dispatchRequest from './dispatchRequest'
-import { RequestConfig, RhinePromise, Method } from '../types'
+import {
+  RequestConfig,
+  RhinePromise,
+  Method,
+  RhineResponse,
+  ResolvedFn,
+  RejectedFn
+} from '../types'
 import { isString } from '../utils/util'
 
+import InterceporManager from './InterceporManager'
+import mergeConfig from './ mergeConfig'
+
+interface Interceptors {
+  request: InterceporManager<RequestConfig>
+  response: InterceporManager<RhineResponse>
+}
+
+interface PromiseChain<T> {
+  resolved: ResolvedFn<T> | ((config: RequestConfig) => RhinePromise)
+  rejected?: RejectedFn
+}
 export default class Rhine {
+  defaults: RequestConfig
+  interceptors: Interceptors
+
+  constructor(initConfig: RequestConfig) {
+    this.defaults = initConfig
+    this.interceptors = {
+      request: new InterceporManager<RequestConfig>(),
+      response: new InterceporManager<RhineResponse>()
+    }
+  }
   request(url: any, config?: any): RhinePromise {
     if (isString(url)) {
       if (!config) {
@@ -12,7 +41,32 @@ export default class Rhine {
     } else {
       config = url
     }
-    return dispatchRequest(config)
+
+    config = mergeConfig(this.defaults, config)
+
+    const chain: PromiseChain<any>[] = [
+      {
+        resolved: dispatchRequest,
+        rejected: undefined
+      }
+    ]
+
+    this.interceptors.request.forEach(interceptor => {
+      chain.unshift(interceptor)
+    })
+
+    this.interceptors.response.forEach(interceptor => {
+      chain.push(interceptor)
+    })
+
+    let promise = Promise.resolve(config)
+
+    while (chain.length) {
+      const { resolved, rejected } = chain.shift()!
+      promise = promise.then(resolved, rejected)
+    }
+
+    return promise
   }
 
   get(url: string, config?: RequestConfig): RhinePromise {
